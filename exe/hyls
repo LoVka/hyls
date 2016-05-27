@@ -34,6 +34,13 @@ case command
   when 'rm'
     abort 'Usage: hyls rm <URI>' if uri.nil? || uri.empty?
     abort 'Not bookmarks were added yet. You can add one with `hyls add <URI>`' unless File.exists?(file)
+    links = File.open(file, 'r').read.split("\n")
+    if links.delete(uri)
+      puts 'URI deleted'
+    else
+      puts 'URI not found'
+    end
+    File.open(file, 'w') { |f| f.write(links.join("\n")) }
   when '--help'
     puts 'Usage: hyls <command> [URI]'
     puts 'Add bookmark'
