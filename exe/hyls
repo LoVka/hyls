@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+
+#require "hyls"
+
+if ARGV.empty?
+  abort "Usage: hyls <command> [URI]\nUse `hyls --help` for more info"
+end
+
+command = ARGV[0]
+uri     = ARGV[1]
+file    = File.join(File.expand_path('~'), 'hyls.txt')
+case command
+  when 'add'
+    abort 'Usage: hyls add <URI>' if uri.nil? || uri.empty?
+    File.open(file, 'a') { |file| file.puts(uri) }
+  when 'list'
+    abort 'Not bookmarks were added yet. You can add one with `hyls add <URI>`' unless File.exists?(file)
+    puts File.open(file, 'r').read
+  when 'search'
+    abort 'Usage: hyls search <URI>' if uri.nil? || uri.empty?
+    abort 'Not bookmarks were added yet. You can add one with `hyls add <URI>`' unless File.exists?(file)
+    File.readlines(file).each do |line|
+      puts line if line.split('//').last.start_with?(uri)
+    end
+  when 'open'
+    abort 'Usage: hyls open <URI>' if uri.nil? || uri.empty?
+    abort 'Not bookmarks were added yet. You can add one with `hyls add <URI>`' unless File.exists?(file)
+    File.readlines(file).each do |line|
+      if line.split('//').last.start_with?(uri)
+        system "open #{line}"
+        break
+      end
+    end
+  when 'rm'
+    abort 'Usage: hyls rm <URI>' if uri.nil? || uri.empty?
+    abort 'Not bookmarks were added yet. You can add one with `hyls add <URI>`' unless File.exists?(file)
+  when '--help'
+    puts 'Usage: hyls <command> [URI]'
+    puts 'Add bookmark'
+    puts '    hyls add <URI>'
+    puts 'List bookmarks'
+    puts '    hyls list'
+  else
+    abort 'Unknown command. Available commonds are: add, list, rm, search, open, --help'
+end
